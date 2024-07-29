@@ -11,7 +11,49 @@
     <h1>Cactusbailarin</h1>
     <img src="cactus.jpg" alt="">
     <video src="cactusbailarin.mp4" controls></video>
-    <audio src="musicacactusbailarin.mp3" controls></audio>
+   
+
+<button id="startButton">Iniciar Grabación</button>
+    <button id="stopButton" disabled>Detener Grabación</button>
+    <audio id="audioPlayback" controls></audio>
+
+
+
+<script>
+    let mediaRecorder;
+    let audioChunks = [];
+
+    document.getElementById('startButton').addEventListener('click', () => {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+
+                mediaRecorder.addEventListener('dataavailable', event => {
+                    audioChunks.push(event.data);
+                });
+
+                mediaRecorder.addEventListener('stop', () => {
+                    const audioBlob = new Blob(audioChunks);
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = document.getElementById('audioPlayback');
+                    audio.src = audioUrl;
+                    audioChunks = [];
+                });
+
+                document.getElementById('startButton').disabled = true;
+                document.getElementById('stopButton').disabled = false;
+            });
+    });
+
+    document.getElementById('stopButton').addEventListener('click', () => {
+        mediaRecorder.stop();
+        document.getElementById('startButton').disabled = false;
+        document.getElementById('stopButton').disabled = true;
+    });
+</script>
+</body>
+
 </body>
 
 </html>
